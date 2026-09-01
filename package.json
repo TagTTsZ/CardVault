@@ -1,0 +1,15 @@
+{
+  "name": "cardvault-full-local-paypal",
+  "version": "3.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "sync-catalog": "node scripts/sync-catalog.js",
+    "sync-all": "node scripts/sync-catalog.js --images",
+    "verify": "node scripts/verify.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2"
+  }
+}

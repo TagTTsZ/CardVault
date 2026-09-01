@@ -1,0 +1,5 @@
+.env
+node_modules/
+data/loja/store.json.bak
+public/assets/cards/
+public/assets/sets/

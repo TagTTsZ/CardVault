@@ -1,0 +1,216 @@
+{
+  "updatedAt": "2026-09-01T00:36:41.534Z",
+  "sets": 174,
+  "cards": 20444,
+  "imagesDownloaded": true,
+  "failures": [
+    {
+      "card": "ecard2-67",
+      "error": "404 Not Found: https://images.pokemontcg.io/ecard2/67.png"
+    },
+    {
+      "card": "ex5-102",
+      "error": "404 Not Found: https://images.pokemontcg.io/ex5/102.png"
+    },
+    {
+      "card": "hsp-HGSS18",
+      "error": "404 Not Found: https://images.pokemontcg.io/hsp/HGSS18.png"
+    },
+    {
+      "card": "mcd14-1",
+      "error": "404 Not Found: https://images.pokemontcg.io/mcd14/1.png"
+    },
+    {
+      "card": "mcd14-3",
+      "error": "404 Not Found: https://images.pokemontcg.io/mcd14/3.png"
+    },
+    {
+      "card": "mcd14-2",
+      "error": "404 Not Found: https://images.pokemontcg.io/mcd14/2.png"
+    },
+    {
+      "card": "mcd14-5",
+      "error": "404 Not Found: https://images.pokemontcg.io/mcd14/5.png"
+    },
+    {
+      "card": "mcd14-4",
+      "error": "404 Not Found: https://images.pokemontcg.io/mcd14/4.png"
+    },
+    {
+      "card": "mcd14-6",
+      "error": "404 Not Found: https://images.pokemontcg.io/mcd14/6.png"
+    },
+    {
+      "card": "mcd14-9",
+      "error": "404 Not Found: https://images.pokemontcg.io/mcd14/9.png"
+    },
+    {
+      "card": "mcd14-7",
+      "error": "404 Not Found: https://images.pokemontcg.io/mcd14/7.png"
+    },
+    {
+      "card": "mcd14-8",
+      "error": "404 Not Found: https://images.pokemontcg.io/mcd14/8.png"
+    },
+    {
+      "card": "mcd14-10",
+      "error": "404 Not Found: https://images.pokemontcg.io/mcd14/10.png"
+    },
+    {
+      "card": "mcd14-11",
+      "error": "404 Not Found: https://images.pokemontcg.io/mcd14/11.png"
+    },
+    {
+      "card": "mcd14-12",
+      "error": "404 Not Found: https://images.pokemontcg.io/mcd14/12.png"
+    },
+    {
+      "card": "mcd15-2",
+      "error": "404 Not Found: https://images.pokemontcg.io/mcd15/2.png"
+    },
+    {
+      "card": "mcd15-3",
+      "error": "404 Not Found: https://images.pokemontcg.io/mcd15/3.png"
+    },
+    {
+      "card": "mcd15-1",
+      "error": "404 Not Found: https://images.pokemontcg.io/mcd15/1.png"
+    },
+    {
+      "card": "mcd15-6",
+      "error": "404 Not Found: https://images.pokemontcg.io/mcd15/6.png"
+    },
+    {
+      "card": "mcd15-5",
+      "error": "404 Not Found: https://images.pokemontcg.io/mcd15/5.png"
+    },
+    {
+      "card": "mcd15-8",
+      "error": "404 Not Found: https://images.pokemontcg.io/mcd15/8.png"
+    },
+    {
+      "card": "mcd15-4",
+      "error": "404 Not Found: https://images.pokemontcg.io/mcd15/4.png"
+    },
+    {
+      "card": "mcd15-7",
+      "error": "404 Not Found: https://images.pokemontcg.io/mcd15/7.png"
+    },
+    {
+      "card": "mcd15-9",
+      "error": "404 Not Found: https://images.pokemontcg.io/mcd15/9.png"
+    },
+    {
+      "card": "mcd15-10",
+      "error": "404 Not Found: https://images.pokemontcg.io/mcd15/10.png"
+    },
+    {
+      "card": "mcd15-11",
+      "error": "404 Not Found: https://images.pokemontcg.io/mcd15/11.png"
+    },
+    {
+      "card": "mcd15-12",
+      "error": "404 Not Found: https://images.pokemontcg.io/mcd15/12.png"
+    },
+    {
+      "card": "mcd17-7",
+      "error": "404 Not Found: https://images.pokemontcg.io/mcd17/7.png"
+    },
+    {
+      "card": "mcd17-6",
+      "error": "404 Not Found: https://images.pokemontcg.io/mcd17/6.png"
+    },
+    {
+      "card": "mcd17-2",
+      "error": "404 Not Found: https://images.pokemontcg.io/mcd17/2.png"
+    },
+    {
+      "card": "mcd17-1",
+      "error": "404 Not Found: https://images.pokemontcg.io/mcd17/1.png"
+    },
+    {
+      "card": "mcd17-5",
+      "error": "404 Not Found: https://images.pokemontcg.io/mcd17/5.png"
+    },
+    {
+      "card": "mcd17-3",
+      "error": "404 Not Found: https://images.pokemontcg.io/mcd17/3.png"
+    },
+    {
+      "card": "mcd17-4",
+      "error": "404 Not Found: https://images.pokemontcg.io/mcd17/4.png"
+    },
+    {
+      "card": "mcd17-8",
+      "error": "404 Not Found: https://images.pokemontcg.io/mcd17/8.png"
+    },
+    {
+      "card": "mcd17-10",
+      "error": "404 Not Found: https://images.pokemontcg.io/mcd17/10.png"
+    },
+    {
+      "card": "mcd17-11",
+      "error": "404 Not Found: https://images.pokemontcg.io/mcd17/11.png"
+    },
+    {
+      "card": "mcd17-12",
+      "error": "404 Not Found: https://images.pokemontcg.io/mcd17/12.png"
+    },
+    {
+      "card": "mcd17-9",
+      "error": "404 Not Found: https://images.pokemontcg.io/mcd17/9.png"
+    },
+    {
+      "card": "mcd18-3",
+      "error": "404 Not Found: https://images.pokemontcg.io/mcd18/3.png"
+    },
+    {
+      "card": "mcd18-5",
+      "error": "404 Not Found: https://images.pokemontcg.io/mcd18/5.png"
+    },
+    {
+      "card": "mcd18-2",
+      "error": "404 Not Found: https://images.pokemontcg.io/mcd18/2.png"
+    },
+    {
+      "card": "mcd18-4",
+      "error": "404 Not Found: https://images.pokemontcg.io/mcd18/4.png"
+    },
+    {
+      "card": "mcd18-8",
+      "error": "404 Not Found: https://images.pokemontcg.io/mcd18/8.png"
+    },
+    {
+      "card": "mcd18-6",
+      "error": "404 Not Found: https://images.pokemontcg.io/mcd18/6.png"
+    },
+    {
+      "card": "mcd18-7",
+      "error": "404 Not Found: https://images.pokemontcg.io/mcd18/7.png"
+    },
+    {
+      "card": "mcd18-1",
+      "error": "404 Not Found: https://images.pokemontcg.io/mcd18/1.png"
+    },
+    {
+      "card": "mcd18-11",
+      "error": "404 Not Found: https://images.pokemontcg.io/mcd18/11.png"
+    },
+    {
+      "card": "mcd18-9",
+      "error": "404 Not Found: https://images.pokemontcg.io/mcd18/9.png"
+    },
+    {
+      "card": "mcd18-10",
+      "error": "404 Not Found: https://images.pokemontcg.io/mcd18/10.png"
+    },
+    {
+      "card": "mcd18-12",
+      "error": "404 Not Found: https://images.pokemontcg.io/mcd18/12.png"
+    },
+    {
+      "card": "svp-102",
+      "error": "404 Not Found: https://images.pokemontcg.io/svp/102.png"
+    }
+  ]
+}

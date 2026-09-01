@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CardVault TCG</title>
+<link rel="stylesheet" href="/style.css">
+<script async src="https://www.sandbox.paypal.com/web-sdk/v6/core" onload="window.__paypalLoaded=true"></script>
+</head>
+<body>
+<header>
+  <div class="container nav">
+    <div class="brand">
+      <div class="logo">CV</div>
+      <strong>CardVault TCG</strong>
+      <span class="localBadge">LOCAL DB</span>
+    </div>
+    <div class="actions">
+      <button class="btn secondary" id="adminBtn">Admin</button>
+      <button class="btn primary" id="cartBtn">Carrinho (<span id="cartCount">0</span>)</button>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+  <section class="hero">
+    <h1>Catálogo Pokémon TCG</h1>
+    <p>Catálogo e inventário lidos localmente. As imagens podem ser armazenadas no próprio projeto.</p>
+    <div id="status" class="status">Carregando catálogo local…</div>
+  </section>
+
+  <section class="toolbar">
+    <input id="search" class="field" placeholder="Buscar coleção ou carta…">
+    <select id="sort" class="field">
+      <option value="dateDesc">Mais recentes</option>
+      <option value="name">Nome A–Z</option>
+      <option value="nameDesc">Nome Z–A</option>
+    </select>
+    <select id="availability" class="field">
+      <option value="all">Todas as cartas</option>
+      <option value="available">Somente disponíveis</option>
+    </select>
+    <button id="backBtn" class="btn secondary" style="display:none">← Coleções</button>
+  </section>
+
+  <section class="titleRow">
+    <div>
+      <h2 id="title">Coleções</h2>
+      <span id="subtitle" class="muted"></span>
+    </div>
+  </section>
+
+  <section id="catalog"></section>
+</main>
+
+<div id="overlay" class="overlay"></div>
+
+<aside id="cartDrawer" class="drawer">
+  <div class="drawerHead">
+    <strong>Seu carrinho</strong>
+    <button class="btn secondary" id="closeCart">Fechar</button>
+  </div>
+  <div id="cartItems" class="drawerBody"></div>
+  <div class="drawerFoot">
+    <div class="row"><span>Subtotal</span><strong id="subtotal">R$ 0,00</strong></div>
+    <div class="row"><span>Frete</span><strong id="shipping">R$ 0,00</strong></div>
+    <div class="row total"><span>Total</span><strong id="total">R$ 0,00</strong></div>
+    <button class="btn primary fullBtn" id="checkoutBtn">Finalizar compra</button>
+  </div>
+</aside>
+
+<section id="checkout" class="modal">
+  <h2>Finalizar pedido</h2>
+  <div class="payGrid">
+    <label><input type="radio" name="pay" value="paypal" checked> PayPal Sandbox</label>
+    <label><input type="radio" name="pay" value="pix"> Pix (demo)</label>
+    <label><input type="radio" name="pay" value="card"> Cartão (demo)</label>
+    <label><input type="radio" name="pay" value="boleto"> Boleto (demo)</label>
+  </div>
+  <div id="paypalArea" class="paypalArea">
+    <div id="paypalStatus" class="muted">Verificando PayPal Sandbox…</div>
+    <paypal-button id="paypalButton" type="pay" hidden></paypal-button>
+  </div>
+  <div class="notice">O PayPal usa o ambiente Sandbox. Pix, cartão e boleto continuam como demonstração.</div>
+  <div class="actions end">
+    <button class="btn secondary" id="cancelCheckout">Cancelar</button>
+    <button class="btn primary" id="demoOrderBtn" style="display:none">Criar pedido demo</button>
+  </div>
+</section>
+
+<section id="adminModal" class="modal">
+  <h2>Inventário</h2>
+  <div id="adminCurrent" class="notice">Abra uma coleção e clique em Editar em uma carta.</div>
+  <div class="formGrid">
+    <input class="field" id="adminPrice" type="number" min="0" step="0.01" placeholder="Preço">
+    <input class="field" id="adminStock" type="number" min="0" step="1" placeholder="Estoque">
+    <select class="field full" id="adminCondition">
+      <option>Near Mint</option>
+      <option>Lightly Played</option>
+      <option>Moderately Played</option>
+      <option>Heavily Played</option>
+    </select>
+    <label class="full check"><input type="checkbox" id="adminEnabled"> Disponível para venda</label>
+  </div>
+  <div class="actions end">
+    <button class="btn secondary" id="closeAdmin">Fechar</button>
+    <button class="btn primary" id="saveAdmin">Salvar inventário</button>
+  </div>
+</section>
+
+<script src="/app.js"></script>
+</body>
+</html>
