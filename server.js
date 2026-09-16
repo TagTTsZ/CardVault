@@ -2,10 +2,25 @@ require('dotenv').config();
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const { createClient } = require('@supabase/supabase-js');
 
 const app = express();
 const ROOT = __dirname;
 const PORT = Number(process.env.PORT || 3000);
+
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_SECRET_KEY = process.env.SUPABASE_SECRET_KEY;
+
+const supabase = createClient(
+  SUPABASE_URL,
+  SUPABASE_SECRET_KEY,
+  {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false
+    }
+  }
+);
 
 const SETS_FILE = path.join(ROOT, 'data', 'catalogo', 'sets.json');
 const CARDS_DIR = path.join(ROOT, 'data', 'catalogo', 'cards');
@@ -127,21 +142,55 @@ app.get('/api/store/product/:id', (req, res) => {
   res.json(loadStore().products?.[req.params.id] || null);
 });
 
-app.put('/api/store/product/:id', (req, res) => {
-  const { price, stock, condition, enabled } = req.body || {};
-  if (!Number.isFinite(Number(price)) || !Number.isInteger(Number(stock)) || Number(price) < 0 || Number(stock) < 0) {
-    return res.status(400).json({ error: 'Preço ou estoque inválido.' });
+app.put('/api/store/product/:id', async (req, res) => {
+  try {
+    const { price, stock, condition, enabled } = req.body || {};
+
+    if (
+      !Number.isFinite(Number(price)) ||
+      !Number.isFinite(Number(stock)) ||
+      Number(price) < 0 ||
+      Number(stock) < 0
+    ) {
+      return res.status(400).json({
+        error: 'Preço ou estoque inválido.'
+      });
+    }
+
+    const product = {
+      card_id: String(req.params.id),
+      price: Number(price),
+      stock: Number(stock),
+      condition: condition || 'Near Mint',
+      enabled: enabled !== false,
+      updated_at: new Date().toISOString()
+    };
+
+    const { data, error } = await supabase
+      .from('inventory')
+      .upsert(product, { onConflict: 'card_id' })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Erro Supabase:', error);
+      return res.status(500).json({
+        error: 'Erro ao salvar produto no Supabase.'
+      });
+    }
+
+    res.json({
+      ok: true,
+      product: data
+    });
+
+  } catch (error) {
+    console.error('Erro ao atualizar produto:', error);
+
+    res.status(500).json({
+      error: 'Erro interno ao atualizar produto.'
+    });
   }
-  const store = loadStore();
-  store.products ||= {};
-  store.products[req.params.id] = {
-    price: Number(price),
-    stock: Number(stock),
-    condition: condition || 'Near Mint',
-    enabled: enabled !== false
-  };
-  saveStore(store);
-  res.json({ ok: true, product: store.products[req.params.id] });
 });
 
 app.get('/api/orders', (_req, res) => {
