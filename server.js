@@ -134,12 +134,74 @@ app.get('/api/catalog/search', (req, res) => {
 });
 
 // ---------- INVENTORY ----------
-app.get('/api/store/products', (_req, res) => {
-  res.json(loadStore().products || {});
+app.get('/api/store/products', async (_req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('inventory')
+      .select('*');
+
+    if (error) {
+      console.error('Erro Supabase:', error);
+      return res.status(500).json({
+        error: 'Erro ao carregar inventário.'
+      });
+    }
+
+    const products = {};
+
+    for (const product of data || []) {
+      products[product.card_id] = {
+        price: Number(product.price),
+        stock: Number(product.stock),
+        condition: product.condition || 'Near Mint',
+        enabled: product.enabled
+      };
+    }
+
+    res.json(products);
+
+  } catch (error) {
+    console.error('Erro ao carregar inventário:', error);
+
+    res.status(500).json({
+      error: 'Erro interno ao carregar inventário.'
+    });
+  }
 });
 
-app.get('/api/store/product/:id', (req, res) => {
-  res.json(loadStore().products?.[req.params.id] || null);
+app.get('/api/store/product/:id', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('inventory')
+      .select('*')
+      .eq('card_id', String(req.params.id))
+      .maybeSingle();
+
+    if (error) {
+      console.error('Erro Supabase:', error);
+      return res.status(500).json({
+        error: 'Erro ao carregar produto.'
+      });
+    }
+
+    if (!data) {
+      return res.json(null);
+    }
+
+    res.json({
+      price: Number(data.price),
+      stock: Number(data.stock),
+      condition: data.condition || 'Near Mint',
+      enabled: data.enabled
+    });
+
+  } catch (error) {
+    console.error('Erro ao carregar produto:', error);
+
+    res.status(500).json({
+      error: 'Erro interno ao carregar produto.'
+    });
+  }
 });
 
 app.put('/api/store/product/:id', async (req, res) => {
