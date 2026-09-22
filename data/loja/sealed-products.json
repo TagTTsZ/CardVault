@@ -1,0 +1,200 @@
+[
+  {
+    "id": "copag-box-mega-forcas-zeraora",
+    "name": "Box Pokémon Mega Forças Mega Zeraora ex",
+    "type": "Box Pokémon",
+    "collection": "Box Pokémon",
+    "image": "",
+    "price": 0,
+    "stock": 0,
+    "enabled": false,
+    "source": "Copag Loja"
+  },
+  {
+    "id": "copag-me05-blister-quadruplo",
+    "name": "Blister Quádruplo Pokémon ME05 Escuridão Absoluta",
+    "type": "Blister Quádruplo",
+    "collection": "ME05 Escuridão Absoluta",
+    "image": "",
+    "price": 0,
+    "stock": 0,
+    "enabled": false,
+    "source": "Copag Loja"
+  },
+  {
+    "id": "copag-me05-blister-triplo",
+    "name": "Blister Triplo Pokémon ME05 Escuridão Absoluta",
+    "type": "Blister Triplo",
+    "collection": "ME05 Escuridão Absoluta",
+    "image": "",
+    "price": 0,
+    "stock": 0,
+    "enabled": false,
+    "source": "Copag Loja"
+  },
+  {
+    "id": "copag-me05-blister-unitario",
+    "name": "Blister Unitário Pokémon ME05 Escuridão Absoluta",
+    "type": "Blister Unitário",
+    "collection": "ME05 Escuridão Absoluta",
+    "image": "",
+    "price": 0,
+    "stock": 0,
+    "enabled": false,
+    "source": "Copag Loja"
+  },
+  {
+    "id": "copag-deck-liga-mega-lucario",
+    "name": "Deck Batalha de Liga Pokémon Mega Lucario ex",
+    "type": "Deck Batalha de Liga",
+    "collection": "Baralho de Batalha",
+    "image": "",
+    "price": 0,
+    "stock": 0,
+    "enabled": false,
+    "source": "Copag Loja"
+  },
+  {
+    "id": "copag-me04-blister-unitario",
+    "name": "Blister Unitário Pokémon ME04 Caos Ascendente",
+    "type": "Blister Unitário",
+    "collection": "ME04 Caos Ascendente",
+    "image": "",
+    "price": 0,
+    "stock": 0,
+    "enabled": false,
+    "source": "Copag Loja"
+  },
+  {
+    "id": "copag-box-mega-greninja",
+    "name": "Box Pokémon Coleção Mega Greninja ex",
+    "type": "Box Pokémon",
+    "collection": "Box Pokémon",
+    "image": "",
+    "price": 0,
+    "stock": 0,
+    "enabled": false,
+    "source": "Copag Loja"
+  },
+  {
+    "id": "copag-me05-treinador-avancado",
+    "name": "Treinador Avançado Pokémon ME05 Escuridão Absoluta",
+    "type": "Treinador Avançado",
+    "collection": "ME05 Escuridão Absoluta",
+    "image": "",
+    "price": 0,
+    "stock": 0,
+    "enabled": false,
+    "source": "Copag Loja"
+  },
+  {
+    "id": "copag-me05-combo-booster",
+    "name": "Combo de Booster Pokémon ME05 Escuridão Absoluta",
+    "type": "Combo de Booster",
+    "collection": "ME05 Escuridão Absoluta",
+    "image": "",
+    "price": 0,
+    "stock": 0,
+    "enabled": false,
+    "source": "Copag Loja"
+  },
+  {
+    "id": "copag-box-parceiro-inicial-s2",
+    "name": "Box Pokémon Coleção Parceiro Inicial - Série 2",
+    "type": "Box Pokémon",
+    "collection": "Box Pokémon",
+    "image": "",
+    "price": 0,
+    "stock": 0,
+    "enabled": false,
+    "source": "Copag Loja"
+  },
+  {
+    "id": "copag-box-mega-luar-gengar",
+    "name": "Box Pokémon Coleção Mega Luar Mega Gengar",
+    "type": "Box Pokémon",
+    "collection": "Box Pokémon",
+    "image": "",
+    "price": 0,
+    "stock": 0,
+    "enabled": false,
+    "source": "Copag Loja"
+  },
+  {
+    "id": "copag-box-mega-zygarde",
+    "name": "Box Pokémon Coleção Mega Zygarde ex",
+    "type": "Box Pokémon",
+    "collection": "Box Pokémon",
+    "image": "",
+    "price": 0,
+    "stock": 0,
+    "enabled": false,
+    "source": "Copag Loja"
+  },
+  {
+    "id": "copag-me04-treinador-avancado",
+    "name": "Treinador Avançado Pokémon ME04 Caos Ascendente",
+    "type": "Treinador Avançado",
+    "collection": "ME04 Caos Ascendente",
+    "image": "",
+    "price": 0,
+    "stock": 0,
+    "enabled": false,
+    "source": "Copag Loja"
+  },
+  {
+    "id": "copag-me04-blister-triplo",
+    "name": "Blister Triplo Pokémon ME04 Caos Ascendente",
+    "type": "Blister Triplo",
+    "collection": "ME04 Caos Ascendente",
+    "image": "",
+    "price": 0,
+    "stock": 0,
+    "enabled": false,
+    "source": "Copag Loja"
+  },
+  {
+    "id": "copag-me04-combo-booster",
+    "name": "Combo de Booster Pokémon ME04 Caos Ascendente",
+    "type": "Combo de Booster",
+    "collection": "ME04 Caos Ascendente",
+    "image": "",
+    "price": 0,
+    "stock": 0,
+    "enabled": false,
+    "source": "Copag Loja"
+  },
+  {
+    "id": "copag-me04-box-display",
+    "name": "Box Display Pokémon ME04 Caos Ascendente",
+    "type": "Box Display",
+    "collection": "ME04 Caos Ascendente",
+    "image": "",
+    "price": 0,
+    "stock": 0,
+    "enabled": false,
+    "source": "Copag Loja"
+  },
+  {
+    "id": "copag-sv10-box-display",
+    "name": "Box Display Pokémon Escarlate e Violeta 10 Rivais Predestinados",
+    "type": "Box Display",
+    "collection": "Escarlate e Violeta 10",
+    "image": "",
+    "price": 0,
+    "stock": 0,
+    "enabled": false,
+    "source": "Copag Loja"
+  },
+  {
+    "id": "copag-ninetales-deluxe",
+    "name": "Baralho de Batalha Deluxe Pokémon TCG Ninetales ex",
+    "type": "Baralho de Batalha",
+    "collection": "Baralho de Batalha",
+    "image": "",
+    "price": 0,
+    "stock": 0,
+    "enabled": false,
+    "source": "Copag Loja"
+  }
+]
