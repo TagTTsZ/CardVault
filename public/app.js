@@ -1,4 +1,4 @@
-let sets=[], currentSet=null, cards=[], mode='sets', inventory={}, selectedAdmin=null, sealedProducts=[];
+let sets=[], currentSet=null, cards=[], mode='sets', inventory={}, selectedAdmin=null, selectedSealedAdmin=null, sealedProducts=[];
 let cart=JSON.parse(localStorage.getItem('cv-full-cart')||'{}');
 let paypalReady=false;
 let adminToken=sessionStorage.getItem('cv-admin-token')||'';
@@ -21,6 +21,7 @@ function updateAdminUI(){
   adminMode=Boolean(adminToken);
   $('adminLogoutBtn').hidden=!adminMode;
   if(mode==='cards')renderCards();
+  renderSealed();
 }
 function setActiveNav(id){
   ['navHome','navCards','navSealed'].forEach(x=>$(x).classList.toggle('active',x===id));
@@ -100,12 +101,37 @@ function renderCards(){
       </div></div></article>`;
   }).join('')||'<div class="empty">Nenhuma carta encontrada.</div>'}</div>`;
 }
+function populateSealedFilters(){
+  const collections=[...new Set(sealedProducts.map(p=>p.collection).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+  const types=[...new Set(sealedProducts.map(p=>p.type).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+  const c=$('sealedCollection').value,t=$('sealedType').value;
+  $('sealedCollection').innerHTML='<option value="">Todas as coleções</option>'+collections.map(x=>`<option value="${safe(x)}">${safe(x)}</option>`).join('');
+  $('sealedType').innerHTML='<option value="">Todos os tipos</option>'+types.map(x=>`<option value="${safe(x)}">${safe(x)}</option>`).join('');
+  $('sealedCollection').value=c;$('sealedType').value=t;
+}
 function renderSealed(){
-  $('sealedCatalog').innerHTML=sealedProducts.length?sealedProducts.map(p=>`<article class="sealedCard">
-    <div class="sealedImage">${p.image?`<img src="${safe(p.image)}" alt="${safe(p.name)}">`:'<span>CV</span>'}</div>
-    <div class="setBody"><div class="setName">${safe(p.name)}</div><div class="meta">${safe(p.type||'Produto selado')}</div>
-    <div class="price">${p.price?brl(p.price):'Em breve'}</div></div></article>`).join(''):
-    '<div class="empty"><strong>Produtos selados em preparação.</strong><br>Esta aba já está pronta para receber boosters, boxes, ETBs e coleções especiais.</div>';
+  populateSealedFilters();
+  const q=$('sealedSearch').value.trim().toLowerCase(),collection=$('sealedCollection').value,type=$('sealedType').value;
+  const list=sealedProducts.filter(p=>(!q||p.name.toLowerCase().includes(q))&&(!collection||p.collection===collection)&&(!type||p.type===type));
+  $('sealedCatalog').innerHTML=list.length?list.map(p=>{
+    const available=p.enabled&&Number(p.stock)>0&&Number(p.price)>0;
+    return `<article class="sealedCard">
+      <div class="sealedImage">${p.image?`<img src="${safe(p.image)}" alt="${safe(p.name)}">`:'<span>CV</span>'}</div>
+      <div class="setBody"><div class="setName">${safe(p.name)}</div><div class="meta">${safe(p.collection||'Sem coleção')} • ${safe(p.type||'Produto selado')}</div>
+      <div class="price">${available?brl(p.price):'Não cadastrado'}</div><div class="stock ${available?'ok':'no'}">${available?`${p.stock} em estoque`:'Indisponível'}</div>
+      <div class="cardActions"><button class="btn primary" ${available?'':'disabled'} onclick='addToCart(${JSON.stringify('sealed:'+p.id)},${JSON.stringify(p.name)},${Number(p.price)},${Number(p.stock)})'>Adicionar</button>
+      ${adminMode?`<button class="btn secondary" onclick='editSealed(${JSON.stringify(p.id)},${JSON.stringify(p.name)},${Number(p.price)},${Number(p.stock)},${Boolean(p.enabled)})'>Editar</button>`:''}</div></div></article>`;
+  }).join(''):'<div class="empty">Nenhum produto encontrado com esses filtros.</div>';
+}
+function editSealed(id,name,price,stock,enabled){
+  if(!adminMode)return;selectedSealedAdmin={id,name};$('sealedAdminCurrent').textContent=`Editando: ${name}`;$('sealedAdminPrice').value=price||'';$('sealedAdminStock').value=stock||0;$('sealedAdminEnabled').checked=Boolean(enabled);$('sealedAdminModal').classList.add('show');$('overlay').classList.add('show');
+}
+async function saveSealedAdmin(){
+  if(!selectedSealedAdmin)return;
+  try{
+    await fetchJson(`/api/sealed-products/${encodeURIComponent(selectedSealedAdmin.id)}`,{method:'PUT',headers:adminHeaders({'Content-Type':'application/json'}),body:JSON.stringify({price:Number($('sealedAdminPrice').value||0),stock:Number($('sealedAdminStock').value||0),enabled:$('sealedAdminEnabled').checked})});
+    const r=await fetchJson('/api/sealed-products');sealedProducts=r.data||[];closeAll();renderSealed();
+  }catch(e){alert(e.message)}
 }
 function addToCart(id,name,price,stock){
   const cur=cart[id]?.qty||0;if(cur>=stock)return alert('Quantidade máxima em estoque atingida.');
@@ -120,7 +146,7 @@ function renderCart(){
   const t=totals();$('subtotal').textContent=brl(t.sub);$('shipping').textContent=t.ship===0&&t.sub>0?'Grátis':brl(t.ship);$('total').textContent=brl(t.total);saveCart();
 }
 function openCart(){$('cartDrawer').classList.add('open');$('overlay').classList.add('show')}
-function closeAll(){['checkout','adminModal','adminLoginModal'].forEach(x=>$(x).classList.remove('show'));$('cartDrawer').classList.remove('open');$('overlay').classList.remove('show')}
+function closeAll(){['checkout','adminModal','sealedAdminModal','adminLoginModal'].forEach(x=>$(x).classList.remove('show'));$('cartDrawer').classList.remove('open');$('overlay').classList.remove('show')}
 async function openCheckout(){
   if(!Object.keys(cart).length)return alert('Carrinho vazio.');
   $('cartDrawer').classList.remove('open');$('checkout').classList.add('show');$('overlay').classList.add('show');
@@ -135,7 +161,7 @@ async function saveAdmin(){
   if(!selectedAdmin)return alert('Selecione uma carta.');
   try{
     await fetchJson(`/api/store/product/${encodeURIComponent(selectedAdmin.id)}`,{method:'PUT',headers:adminHeaders({'Content-Type':'application/json'}),body:JSON.stringify({price:Number($('adminPrice').value||0),stock:Number($('adminStock').value||0),condition:$('adminCondition').value,enabled:$('adminEnabled').checked})});
-    await loadInventory();closeAll();renderCards();
+    const fresh=await fetchJson(`/api/store/product/${encodeURIComponent(selectedAdmin.id)}`);inventory[selectedAdmin.id]=fresh||{price:0,stock:0,condition:'Near Mint',enabled:false};closeAll();renderCards();
   }catch(e){
     if(/autorizado/i.test(e.message)){adminToken='';sessionStorage.removeItem('cv-admin-token');updateAdminUI();}
     alert(e.message);
@@ -173,10 +199,11 @@ async function setupPayPal(){
 $('homeBtn').onclick=()=>showView('home');$('navHome').onclick=()=>showView('home');
 $('navCards').onclick=()=>{showView('catalog');renderSets()};$('shopCardsBtn').onclick=$('navCards').onclick;
 $('navSealed').onclick=()=>showView('sealed');$('shopSealedBtn').onclick=$('navSealed').onclick;
+$('sealedSearch').addEventListener('input',renderSealed);$('sealedCollection').addEventListener('change',renderSealed);$('sealedType').addEventListener('change',renderSealed);
 $('open30thBtn').onclick=()=>openSet('me6pt5');
 $('search').addEventListener('input',()=>mode==='sets'?renderSets():renderCards());$('sort').addEventListener('change',()=>mode==='sets'?renderSets():renderCards());$('availability').addEventListener('change',()=>mode==='cards'&&renderCards());
 $('backBtn').onclick=renderSets;$('cartBtn').onclick=openCart;$('closeCart').onclick=closeAll;$('overlay').onclick=closeAll;$('checkoutBtn').onclick=openCheckout;$('cancelCheckout').onclick=closeAll;
 $('adminEntry').onclick=openAdminLogin;$('closeAdminLogin').onclick=closeAll;$('adminLoginBtn').onclick=loginAdmin;$('adminPassword').addEventListener('keydown',e=>{if(e.key==='Enter')loginAdmin()});
-$('adminLogoutBtn').onclick=logoutAdmin;$('closeAdmin').onclick=closeAll;$('saveAdmin').onclick=saveAdmin;
+$('adminLogoutBtn').onclick=logoutAdmin;$('closeAdmin').onclick=closeAll;$('saveAdmin').onclick=saveAdmin;$('closeSealedAdmin').onclick=closeAll;$('saveSealedAdmin').onclick=saveSealedAdmin;
 
 renderCart();init();

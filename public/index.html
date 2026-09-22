@@ -68,7 +68,12 @@
   </section>
 
   <section id="sealedView" hidden>
-    <section class="hero compactHero"><h1>Produtos selados</h1><p>Boosters, boxes, ETBs e coleções especiais.</p></section>
+    <section class="hero compactHero"><h1>Produtos selados</h1><p>Catálogo de produtos Pokémon comercializados pela Copag no Brasil.</p></section>
+    <section class="sealedToolbar">
+      <input id="sealedSearch" class="field" placeholder="Buscar produto selado…">
+      <select id="sealedCollection" class="field"><option value="">Todas as coleções</option></select>
+      <select id="sealedType" class="field"><option value="">Todos os tipos</option></select>
+    </section>
     <div id="sealedCatalog" class="sealedGrid"></div>
   </section>
 </main>
@@ -107,6 +112,17 @@
   <input class="field" id="adminPassword" type="password" autocomplete="current-password" placeholder="Senha administrativa">
   <div id="adminLoginStatus" class="status"></div>
   <div class="actions end"><button class="btn secondary" id="closeAdminLogin">Cancelar</button><button class="btn primary" id="adminLoginBtn">Entrar</button></div>
+</section>
+
+<section id="sealedAdminModal" class="modal">
+  <h2>Produto selado</h2>
+  <div id="sealedAdminCurrent" class="notice">Selecione um produto.</div>
+  <div class="formGrid">
+    <input class="field" id="sealedAdminPrice" type="number" min="0" step="0.01" placeholder="Preço">
+    <input class="field" id="sealedAdminStock" type="number" min="0" step="1" placeholder="Estoque">
+    <label class="full check"><input type="checkbox" id="sealedAdminEnabled"> Disponível para venda</label>
+  </div>
+  <div class="actions end"><button class="btn secondary" id="closeSealedAdmin">Fechar</button><button class="btn primary" id="saveSealedAdmin">Salvar produto</button></div>
 </section>
 
 <section id="adminModal" class="modal">
