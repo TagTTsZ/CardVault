@@ -212,10 +212,42 @@ app.post('/api/admin/login', (req, res) => {
 });
 
 // ---------- SEALED PRODUCTS ----------
-app.get('/api/sealed-products', (_req, res) => {
-  const file = path.join(ROOT, 'data', 'loja', 'sealed-products.json');
-  const products = fs.existsSync(file) ? readJson(file) : [];
-  res.json({ ok: true, data: products });
+app.get('/api/sealed-products', async (_req, res) => {
+  try {
+    const file = path.join(ROOT, 'data', 'loja', 'sealed-products.json');
+    const products = fs.existsSync(file) ? readJson(file) : [];
+    const ids = products.map(p => `sealed:${p.id}`);
+    let rows = [];
+    if (ids.length) {
+      const { data, error } = await supabase.from('inventory').select('*').in('card_id', ids);
+      if (error) throw error;
+      rows = data || [];
+    }
+    const inv = Object.fromEntries(rows.map(r => [String(r.card_id).replace(/^sealed:/,''), r]));
+    res.json({ ok: true, data: products.map(p => ({
+      ...p,
+      price: Number(inv[p.id]?.price || 0),
+      stock: Number(inv[p.id]?.stock || 0),
+      enabled: Boolean(inv[p.id]?.enabled)
+    })) });
+  } catch (e) { res.status(500).json({ error: 'Erro ao carregar produtos selados.' }); }
+});
+
+app.put('/api/sealed-products/:id', requireAdmin, async (req, res) => {
+  try {
+    const { price, stock, enabled } = req.body || {};
+    if (!Number.isFinite(Number(price)) || !Number.isInteger(Number(stock)) || Number(price) < 0 || Number(stock) < 0) {
+      return res.status(400).json({ error: 'Preço ou estoque inválido.' });
+    }
+    const product = {
+      card_id: `sealed:${String(req.params.id)}`,
+      price: Number(price), stock: Number(stock), condition: 'Selado',
+      enabled: enabled !== false, updated_at: new Date().toISOString()
+    };
+    const { data, error } = await supabase.from('inventory').upsert(product, { onConflict: 'card_id' }).select().single();
+    if (error) throw error;
+    res.json({ ok: true, product: data });
+  } catch (e) { console.error(e); res.status(500).json({ error: 'Erro ao salvar produto selado.' }); }
 });
 
 // ---------- INVENTORY ----------
@@ -295,7 +327,7 @@ app.put('/api/store/product/:id', requireAdmin, async (req, res) => {
 
     if (
       !Number.isFinite(Number(price)) ||
-      !Number.isFinite(Number(stock)) ||
+      !Number.isInteger(Number(stock)) ||
       Number(price) < 0 ||
       Number(stock) < 0
     ) {
