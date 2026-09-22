@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 const { createClient } = require('@supabase/supabase-js');
 
 const app = express();
@@ -11,16 +12,37 @@ const PORT = Number(process.env.PORT || 3000);
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SECRET_KEY = process.env.SUPABASE_SECRET_KEY;
 
+if (!SUPABASE_URL || !SUPABASE_SECRET_KEY) {
+  throw new Error('Configure SUPABASE_URL e SUPABASE_SECRET_KEY nas variáveis de ambiente.');
+}
+
 const supabase = createClient(
   SUPABASE_URL,
   SUPABASE_SECRET_KEY,
-  {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false
-    }
-  }
+  { auth: { persistSession: false, autoRefreshToken: false } }
 );
+
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '';
+const ADMIN_TOKEN_TTL_MS = 8 * 60 * 60 * 1000;
+
+function signAdminToken(expiresAt) {
+  const payload = String(expiresAt);
+  const sig = crypto.createHmac('sha256', ADMIN_PASSWORD).update(payload).digest('hex');
+  return `${payload}.${sig}`;
+}
+function verifyAdminToken(token) {
+  if (!ADMIN_PASSWORD || !token) return false;
+  const [expiresAt, sig] = String(token).split('.');
+  if (!expiresAt || !sig || Number(expiresAt) < Date.now()) return false;
+  const expected = crypto.createHmac('sha256', ADMIN_PASSWORD).update(expiresAt).digest('hex');
+  if (sig.length !== expected.length) return false;
+  return crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected));
+}
+function requireAdmin(req, res, next) {
+  const token = String(req.headers.authorization || '').replace(/^Bearer\s+/i, '');
+  if (!verifyAdminToken(token)) return res.status(401).json({ error: 'Acesso administrativo não autorizado.' });
+  next();
+}
 
 const SETS_FILE = path.join(ROOT, 'data', 'catalogo', 'sets.json');
 const CARDS_DIR = path.join(ROOT, 'data', 'catalogo', 'cards');
@@ -72,16 +94,56 @@ app.get('/api/catalog/sets', (_req, res) => {
       ...set,
       localImages: localSetImages(set)
     }));
+
+    // A fonte histórica do projeto pode demorar para receber lançamentos.
+    // Enquanto isso, a 30th Celebration é carregada sob demanda pela TCGdex.
+    if (!sets.some(s => s.id === 'me6pt5')) {
+      sets.push({
+        id: 'me6pt5',
+        name: '30th Celebration',
+        series: 'Mega Evolution',
+        releaseDate: '2026/09/16',
+        total: 203,
+        printedTotal: 203,
+        localImages: { logo: '', symbol: '' },
+        remoteCatalog: 'tcgdex'
+      });
+    }
     res.json({ ok: true, data: sets });
   } catch (e) {
     res.status(500).json({ ok: false, error: e.message });
   }
 });
 
-app.get('/api/catalog/sets/:id', (req, res) => {
+app.get('/api/catalog/sets/:id', async (req, res) => {
   try {
     const id = safeFile(req.params.id);
     const file = path.join(CARDS_DIR, `${id}.json`);
+
+    if (!fs.existsSync(file) && id === 'me6pt5') {
+      const remote = await fetch('https://api.tcgdex.net/v2/en/sets/me6pt5');
+      if (!remote.ok) return res.status(502).json({ error: 'A coleção 30th Celebration está temporariamente indisponível.' });
+      const set = await remote.json();
+      const cards = (set.cards || []).map(card => ({
+        id: card.id,
+        name: card.name,
+        number: card.localId || card.id,
+        rarity: card.rarity || '',
+        localImage: card.image || ''
+      }));
+      return res.json({
+        ok: true,
+        data: {
+          id: 'me6pt5',
+          name: set.name || '30th Celebration',
+          series: set.serie?.name || 'Mega Evolution',
+          releaseDate: set.releaseDate || '2026/09/16',
+          total: set.cardCount?.total || cards.length,
+          cards
+        }
+      });
+    }
+
     if (!fs.existsSync(file)) return res.status(404).json({ error: 'Coleção não sincronizada.' });
 
     const sets = fs.existsSync(SETS_FILE) ? readJson(SETS_FILE) : [];
@@ -131,6 +193,29 @@ app.get('/api/catalog/search', (req, res) => {
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
+});
+
+// ---------- ADMIN ----------
+app.get('/api/admin/status', (_req, res) => {
+  res.json({ enabled: Boolean(ADMIN_PASSWORD) });
+});
+
+app.post('/api/admin/login', (req, res) => {
+  if (!ADMIN_PASSWORD) return res.status(503).json({ error: 'ADMIN_PASSWORD não foi configurada no Render.' });
+  const supplied = String(req.body?.password || '');
+  const a = Buffer.from(supplied);
+  const b = Buffer.from(ADMIN_PASSWORD);
+  const ok = a.length === b.length && crypto.timingSafeEqual(a, b);
+  if (!ok) return res.status(401).json({ error: 'Senha administrativa incorreta.' });
+  const expiresAt = Date.now() + ADMIN_TOKEN_TTL_MS;
+  res.json({ token: signAdminToken(expiresAt), expiresAt });
+});
+
+// ---------- SEALED PRODUCTS ----------
+app.get('/api/sealed-products', (_req, res) => {
+  const file = path.join(ROOT, 'data', 'loja', 'sealed-products.json');
+  const products = fs.existsSync(file) ? readJson(file) : [];
+  res.json({ ok: true, data: products });
 });
 
 // ---------- INVENTORY ----------
@@ -204,7 +289,7 @@ app.get('/api/store/product/:id', async (req, res) => {
   }
 });
 
-app.put('/api/store/product/:id', async (req, res) => {
+app.put('/api/store/product/:id', requireAdmin, async (req, res) => {
   try {
     const { price, stock, condition, enabled } = req.body || {};
 
@@ -308,43 +393,41 @@ app.get('/paypal-api/auth/browser-safe-client-token', async (req, res) => {
   }
 });
 
-function cartTotals(store, items) {
+async function cartTotals(items) {
+  const requested = (items || []).filter(i => i && i.id && Number(i.qty) > 0);
+  if (!requested.length) throw new Error('Carrinho vazio.');
+
+  const ids = requested.map(i => String(i.id));
+  const { data, error } = await supabase
+    .from('inventory')
+    .select('card_id, price, stock, enabled')
+    .in('card_id', ids);
+
+  if (error) throw new Error('Não foi possível validar o estoque.');
+  const byId = Object.fromEntries((data || []).map(x => [x.card_id, x]));
+
   let subtotal = 0;
   const normalized = [];
-
-  for (const item of items || []) {
-    const inventory = store.products?.[item.id];
-    if (!inventory || !inventory.enabled) {
-      throw new Error(`Produto indisponível: ${item.name || item.id}`);
-    }
-    if (Number(item.qty) < 1 || Number(item.qty) > Number(inventory.stock)) {
+  for (const item of requested) {
+    const inventory = byId[String(item.id)];
+    if (!inventory || !inventory.enabled) throw new Error(`Produto indisponível: ${item.name || item.id}`);
+    const qty = Number(item.qty);
+    if (!Number.isInteger(qty) || qty < 1 || qty > Number(inventory.stock)) {
       throw new Error(`Estoque insuficiente: ${item.name || item.id}`);
     }
-
     const price = Number(inventory.price);
-    const qty = Number(item.qty);
     subtotal += price * qty;
-    normalized.push({
-      id: item.id,
-      name: item.name || item.id,
-      qty,
-      price
-    });
+    normalized.push({ id: String(item.id), name: item.name || item.id, qty, price });
   }
 
   const shipping = subtotal > 0 && subtotal < 250 ? 18.90 : 0;
-  return {
-    subtotal,
-    shipping,
-    total: subtotal + shipping,
-    items: normalized
-  };
+  return { subtotal, shipping, total: subtotal + shipping, items: normalized };
 }
 
 app.post('/paypal-api/checkout/orders/create', async (req, res) => {
   try {
     const store = loadStore();
-    const totals = cartTotals(store, req.body.items);
+    const totals = await cartTotals(req.body.items);
     const accessToken = await paypalAccessToken();
 
     const r = await fetch(`${paypalBase()}/v2/checkout/orders`, {
@@ -421,8 +504,18 @@ app.post('/paypal-api/checkout/orders/:orderId/capture', async (req, res) => {
 
     if (data.status === 'COMPLETED') {
       for (const item of pending.items) {
-        const inv = store.products?.[item.id];
-        if (inv) inv.stock = Math.max(0, Number(inv.stock) - Number(item.qty));
+        const { data: inv, error: readError } = await supabase
+          .from('inventory')
+          .select('stock')
+          .eq('card_id', String(item.id))
+          .single();
+        if (readError || !inv) throw new Error(`Falha ao atualizar estoque de ${item.name || item.id}.`);
+        const nextStock = Math.max(0, Number(inv.stock) - Number(item.qty));
+        const { error: updateError } = await supabase
+          .from('inventory')
+          .update({ stock: nextStock, updated_at: new Date().toISOString() })
+          .eq('card_id', String(item.id));
+        if (updateError) throw new Error(`Falha ao atualizar estoque de ${item.name || item.id}.`);
       }
 
       store.orders ||= [];
@@ -446,27 +539,6 @@ app.post('/paypal-api/checkout/orders/:orderId/capture', async (req, res) => {
   }
 });
 
-// Checkout local de demonstração para Pix/cartão/boleto.
-app.post('/api/orders/demo', (req, res) => {
-  try {
-    const store = loadStore();
-    const totals = cartTotals(store, req.body.items);
-    const order = {
-      id: `CV-${Date.now()}`,
-      paymentMethod: req.body.paymentMethod || 'demo',
-      status: 'pending',
-      items: totals.items,
-      total: totals.total,
-      createdAt: new Date().toISOString()
-    };
-    store.orders ||= [];
-    store.orders.push(order);
-    saveStore(store);
-    res.json({ ok: true, order });
-  } catch (e) {
-    res.status(400).json({ error: e.message });
-  }
-});
 
 app.listen(PORT, () => {
   console.log('');
