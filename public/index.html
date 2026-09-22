@@ -5,87 +5,108 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>CardVault TCG</title>
 <link rel="stylesheet" href="/style.css">
-<script async src="https://www.sandbox.paypal.com/web-sdk/v6/core" onload="window.__paypalLoaded=true"></script>
+<script async src="https://www.sandbox.paypal.com/web-sdk/v6/core"></script>
 </head>
 <body>
 <header>
   <div class="container nav">
-    <div class="brand">
-      <div class="logo">CV</div>
-      <strong>CardVault TCG</strong>
-      <span class="localBadge">LOCAL DB</span>
-    </div>
+    <button class="brand brandButton" id="homeBtn"><div class="logo">CV</div><strong>CardVault TCG</strong></button>
+    <nav class="navLinks">
+      <button class="navLink active" id="navHome">Início</button>
+      <button class="navLink" id="navCards">Cartas</button>
+      <button class="navLink" id="navSealed">Produtos selados</button>
+    </nav>
     <div class="actions">
-      <button class="btn secondary" id="adminBtn">Admin</button>
+      <button class="btn secondary adminOnly" id="adminLogoutBtn" hidden>Sair do admin</button>
       <button class="btn primary" id="cartBtn">Carrinho (<span id="cartCount">0</span>)</button>
     </div>
   </div>
 </header>
 
 <main class="container">
-  <section class="hero">
-    <h1>Catálogo Pokémon TCG</h1>
-    <p>Catálogo e inventário lidos localmente. As imagens podem ser armazenadas no próprio projeto.</p>
-    <div id="status" class="status">Carregando catálogo local…</div>
+  <section id="homeView">
+    <section class="hero homeHero">
+      <div>
+        <span class="eyebrow">CARDVAULT TCG</span>
+        <h1>Seu catálogo Pokémon TCG em um só lugar.</h1>
+        <p>Explore cartas, confira disponibilidade e finalize o pedido com PayPal.</p>
+        <div class="heroActions">
+          <button class="btn primary" id="shopCardsBtn">Ver cartas</button>
+          <button class="btn secondary" id="shopSealedBtn">Produtos selados</button>
+        </div>
+      </div>
+      <div class="heroPanel">
+        <strong>Novidade</strong>
+        <h2>30th Celebration</h2>
+        <p>A coleção comemorativa de 30 anos já aparece no catálogo e é carregada pela fonte mais recente disponível.</p>
+        <button class="btn primary" id="open30thBtn">Abrir coleção</button>
+      </div>
+    </section>
+    <section class="sectionBlock">
+      <div class="titleRow"><div><h2>Coleções recentes</h2><span class="muted">Acesso rápido ao catálogo</span></div></div>
+      <div id="featuredSets" class="setGrid"></div>
+    </section>
   </section>
 
-  <section class="toolbar">
-    <input id="search" class="field" placeholder="Buscar coleção ou carta…">
-    <select id="sort" class="field">
-      <option value="dateDesc">Mais recentes</option>
-      <option value="name">Nome A–Z</option>
-      <option value="nameDesc">Nome Z–A</option>
-    </select>
-    <select id="availability" class="field">
-      <option value="all">Todas as cartas</option>
-      <option value="available">Somente disponíveis</option>
-    </select>
-    <button id="backBtn" class="btn secondary" style="display:none">← Coleções</button>
+  <section id="catalogView" hidden>
+    <section class="hero compactHero">
+      <h1>Cartas Pokémon TCG</h1>
+      <div id="status" class="status">Carregando catálogo…</div>
+    </section>
+    <section class="toolbar">
+      <input id="search" class="field" placeholder="Buscar coleção ou carta…">
+      <select id="sort" class="field">
+        <option value="dateDesc">Mais recentes</option><option value="name">Nome A–Z</option><option value="nameDesc">Nome Z–A</option>
+      </select>
+      <select id="availability" class="field">
+        <option value="all">Todas as cartas</option><option value="available">Somente disponíveis</option>
+      </select>
+      <button id="backBtn" class="btn secondary" style="display:none">← Coleções</button>
+    </section>
+    <section class="titleRow"><div><h2 id="title">Coleções</h2><span id="subtitle" class="muted"></span></div></section>
+    <section id="catalog"></section>
   </section>
 
-  <section class="titleRow">
-    <div>
-      <h2 id="title">Coleções</h2>
-      <span id="subtitle" class="muted"></span>
-    </div>
+  <section id="sealedView" hidden>
+    <section class="hero compactHero"><h1>Produtos selados</h1><p>Boosters, boxes, ETBs e coleções especiais.</p></section>
+    <div id="sealedCatalog" class="sealedGrid"></div>
   </section>
-
-  <section id="catalog"></section>
 </main>
+
+<footer class="container footer">
+  <span>CardVault TCG</span>
+  <button class="adminEntry" id="adminEntry">Administração</button>
+</footer>
 
 <div id="overlay" class="overlay"></div>
 
 <aside id="cartDrawer" class="drawer">
-  <div class="drawerHead">
-    <strong>Seu carrinho</strong>
-    <button class="btn secondary" id="closeCart">Fechar</button>
-  </div>
+  <div class="drawerHead"><strong>Seu carrinho</strong><button class="btn secondary" id="closeCart">Fechar</button></div>
   <div id="cartItems" class="drawerBody"></div>
   <div class="drawerFoot">
     <div class="row"><span>Subtotal</span><strong id="subtotal">R$ 0,00</strong></div>
     <div class="row"><span>Frete</span><strong id="shipping">R$ 0,00</strong></div>
     <div class="row total"><span>Total</span><strong id="total">R$ 0,00</strong></div>
-    <button class="btn primary fullBtn" id="checkoutBtn">Finalizar compra</button>
+    <button class="btn primary fullBtn" id="checkoutBtn">Finalizar com PayPal</button>
   </div>
 </aside>
 
 <section id="checkout" class="modal">
-  <h2>Finalizar pedido</h2>
-  <div class="payGrid">
-    <label><input type="radio" name="pay" value="paypal" checked> PayPal Sandbox</label>
-    <label><input type="radio" name="pay" value="pix"> Pix (demo)</label>
-    <label><input type="radio" name="pay" value="card"> Cartão (demo)</label>
-    <label><input type="radio" name="pay" value="boleto"> Boleto (demo)</label>
-  </div>
+  <h2>Finalizar com PayPal</h2>
+  <p class="muted">O pagamento desta versão é realizado exclusivamente pelo PayPal Sandbox.</p>
   <div id="paypalArea" class="paypalArea">
     <div id="paypalStatus" class="muted">Verificando PayPal Sandbox…</div>
     <paypal-button id="paypalButton" type="pay" hidden></paypal-button>
   </div>
-  <div class="notice">O PayPal usa o ambiente Sandbox. Pix, cartão e boleto continuam como demonstração porque eu não quero doar meus dados para o pagseguros professor Nilson dos Anjos, já que a democracia venceu não é mesmo prof?</div>
-  <div class="actions end">
-    <button class="btn secondary" id="cancelCheckout">Cancelar</button>
-    <button class="btn primary" id="demoOrderBtn" style="display:none">Criar pedido demo</button>
-  </div>
+  <div class="actions end"><button class="btn secondary" id="cancelCheckout">Cancelar</button></div>
+</section>
+
+<section id="adminLoginModal" class="modal">
+  <h2>Área administrativa</h2>
+  <p class="muted">Digite a senha configurada no servidor.</p>
+  <input class="field" id="adminPassword" type="password" autocomplete="current-password" placeholder="Senha administrativa">
+  <div id="adminLoginStatus" class="status"></div>
+  <div class="actions end"><button class="btn secondary" id="closeAdminLogin">Cancelar</button><button class="btn primary" id="adminLoginBtn">Entrar</button></div>
 </section>
 
 <section id="adminModal" class="modal">
@@ -94,18 +115,10 @@
   <div class="formGrid">
     <input class="field" id="adminPrice" type="number" min="0" step="0.01" placeholder="Preço">
     <input class="field" id="adminStock" type="number" min="0" step="1" placeholder="Estoque">
-    <select class="field full" id="adminCondition">
-      <option>Near Mint</option>
-      <option>Lightly Played</option>
-      <option>Moderately Played</option>
-      <option>Heavily Played</option>
-    </select>
+    <select class="field full" id="adminCondition"><option>Near Mint</option><option>Lightly Played</option><option>Moderately Played</option><option>Heavily Played</option></select>
     <label class="full check"><input type="checkbox" id="adminEnabled"> Disponível para venda</label>
   </div>
-  <div class="actions end">
-    <button class="btn secondary" id="closeAdmin">Fechar</button>
-    <button class="btn primary" id="saveAdmin">Salvar inventário</button>
-  </div>
+  <div class="actions end"><button class="btn secondary" id="closeAdmin">Fechar</button><button class="btn primary" id="saveAdmin">Salvar inventário</button></div>
 </section>
 
 <script src="/app.js"></script>
