@@ -15,7 +15,7 @@
       <button class="navLink active" id="navHome">Início</button>
       <button class="navLink" id="navCards">Cartas</button>
       <button class="navLink" id="navSealed">Produtos selados</button>
-      <button class="navLink" id="navAbout">Sobre nós</button>
+      <a class="navLink" id="navAbout" href="/institucional.html#sobre">Sobre nós</a>
     </nav>
     <div class="actions">
       <button class="btn secondary adminOnly" id="adminLogoutBtn" hidden>Sair do admin</button>
@@ -75,6 +75,7 @@
       <select id="sealedCollection" class="field"><option value="">Todas as coleções</option></select>
       <select id="sealedType" class="field"><option value="">Todos os tipos</option></select>
     </section>
+    <div class="catalogNote"><strong>Catálogo ampliado:</strong> referência de produtos desde Escarlate e Violeta até ME05 — Escuridão Absoluta. Produtos históricos sem foto oficial confirmada usam uma imagem de referência identificada no próprio card.</div>
     <div id="sealedCatalog" class="sealedGrid"></div>
   </section>
 
@@ -127,9 +128,9 @@
 <footer class="container footer">
   <div class="footerGrid">
     <div class="footerBrand"><div class="footerLogo">CV</div><strong>CardVault TCG</strong><p>Catálogo independente de Pokémon TCG.</p><button class="adminEntry" id="adminEntry">Administração</button></div>
-    <div class="footerCol"><h4>Institucional</h4><button class="footerLink" id="footerAbout">Sobre a CardVault</button><button class="footerLink" id="footerContact">Contato</button><button class="footerLink" id="footerHowToBuy">Como comprar</button></div>
-    <div class="footerCol"><h4>Atendimento</h4><button class="footerLink" id="footerFaq">Dúvidas frequentes</button><button class="footerLink" id="footerReturns">Trocas e devoluções</button><button class="footerLink" id="footerPrivacy">Política de privacidade</button></div>
-    <div class="footerCol"><h4>Informações</h4><button class="footerLink" id="footerTerms">Termos de uso</button><span class="footerMuted">Pagamento: PayPal Sandbox</span><span class="footerMuted">Atendimento: a configurar</span></div>
+    <div class="footerCol"><h4>Institucional</h4><a class="footerLink" id="footerAbout" href="/institucional.html#sobre">Sobre a CardVault</a><a class="footerLink" id="footerContact" href="/institucional.html#contato">Contato</a><a class="footerLink" id="footerHowToBuy" href="/institucional.html#como-comprar">Como comprar</a></div>
+    <div class="footerCol"><h4>Atendimento</h4><a class="footerLink" id="footerFaq" href="/institucional.html#faq">Dúvidas frequentes</a><a class="footerLink" id="footerReturns" href="/institucional.html#trocas">Trocas e devoluções</a><a class="footerLink" id="footerPrivacy" href="/institucional.html#privacidade">Política de privacidade</a></div>
+    <div class="footerCol"><h4>Contato</h4><a class="footerLink" href="mailto:contato@cardvaulttcg.com.br">contato@cardvaulttcg.com.br</a><a class="footerLink" id="footerTerms" href="/institucional.html#termos">Termos de uso</a><span class="footerMuted">Pagamento: PayPal Sandbox</span></div>
   </div>
   <div class="footerBottom"><span>© 2026 CardVault TCG. Todos os direitos reservados.</span><span>Projeto independente — sem afiliação oficial com as marcas citadas.</span></div>
 </footer>

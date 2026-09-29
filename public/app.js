@@ -24,15 +24,17 @@ function updateAdminUI(){
   renderSealed();
 }
 function setActiveNav(id){
-  ['navHome','navCards','navSealed'].forEach(x=>$(x).classList.toggle('active',x===id));
+  ['navHome','navCards','navSealed','navAbout'].forEach(x=>$(x).classList.toggle('active',x===id));
 }
 function showView(view){
   $('homeView').hidden=view!=='home';
   $('catalogView').hidden=view!=='catalog';
   $('sealedView').hidden=view!=='sealed';
+  $('aboutView').hidden=view!=='about';
   if(view==='home')setActiveNav('navHome');
   if(view==='catalog')setActiveNav('navCards');
   if(view==='sealed')setActiveNav('navSealed');
+  if(view==='about')setActiveNav('navAbout');
   window.scrollTo({top:0,behavior:'smooth'});
 }
 async function loadInventory(){ inventory=await fetchJson('/api/store/products'); }
@@ -109,20 +111,41 @@ function populateSealedFilters(){
   $('sealedType').innerHTML='<option value="">Todos os tipos</option>'+types.map(x=>`<option value="${safe(x)}">${safe(x)}</option>`).join('');
   $('sealedCollection').value=c;$('sealedType').value=t;
 }
+function sealedFallbackSvg(name){
+  const text=encodeURIComponent(String(name||'Produto').slice(0,34));
+  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600"><rect width="600" height="600" fill="#111629"/><rect x="38" y="38" width="524" height="524" rx="34" fill="none" stroke="#586078" stroke-width="3"/><text x="300" y="265" text-anchor="middle" fill="#8fa2ff" font-family="Arial,sans-serif" font-size="42" font-weight="800">CARDVAULT</text><text x="300" y="330" text-anchor="middle" fill="#aeb6c9" font-family="Arial,sans-serif" font-size="24">${text}</text><text x="300" y="390" text-anchor="middle" fill="#78839c" font-family="Arial,sans-serif" font-size="18">Imagem indisponível</text></svg>`)}`;
+}
 function renderSealed(){
   populateSealedFilters();
   const q=$('sealedSearch').value.trim().toLowerCase(),collection=$('sealedCollection').value,type=$('sealedType').value;
-  const list=sealedProducts.filter(p=>(!q||p.name.toLowerCase().includes(q))&&(!collection||p.collection===collection)&&(!type||p.type===type));
+  const list=sealedProducts.filter(p=>(!q||String(p.name||'').toLowerCase().includes(q))&&(!collection||p.collection===collection)&&(!type||p.type===type));
   $('sealedCatalog').innerHTML=list.length?list.map(p=>{
     const available=p.enabled&&Number(p.stock)>0&&Number(p.price)>0;
+    const img=p.image||sealedFallbackSvg(p.name);
+    const imageLabel=p.imageKind==='copag'?'Imagem de produto':'Imagem de referência';
+    const badge=p.catalogOnly?`<span class="badge">Catálogo</span>`:'';
     return `<article class="sealedCard">
-      <div class="sealedImage">${p.image?`<img src="${safe(p.image)}" alt="${safe(p.name)}">`:'<span>CV</span>'}</div>
-      <div class="setBody"><div class="setName">${safe(p.name)}</div><div class="meta">${safe(p.collection||'Sem coleção')} • ${safe(p.type||'Produto selado')}</div>
+      <div class="sealedImage"><img loading="lazy" referrerpolicy="no-referrer" src="${safe(img)}" alt="${safe(p.name)}" onerror="this.onerror=null;this.src='${sealedFallbackSvg(p.name)}'" title="${imageLabel}"><span class="imageTag">${imageLabel}</span></div>
+      <div class="setBody"><div class="setName">${safe(p.name)} ${badge}</div><div class="meta">${safe(p.collection||'Sem coleção')} • ${safe(p.type||'Produto selado')}</div>
       <div class="price">${available?brl(p.price):'Não cadastrado'}</div><div class="stock ${available?'ok':'no'}">${available?`${p.stock} em estoque`:'Indisponível'}</div>
       <div class="cardActions"><button class="btn primary" ${available?'':'disabled'} onclick='addToCart(${JSON.stringify('sealed:'+p.id)},${JSON.stringify(p.name)},${Number(p.price)},${Number(p.stock)})'>Adicionar</button>
       ${adminMode?`<button class="btn secondary" onclick='editSealed(${JSON.stringify(p.id)},${JSON.stringify(p.name)},${Number(p.price)},${Number(p.stock)},${Boolean(p.enabled)})'>Editar</button>`:''}</div></div></article>`;
   }).join(''):'<div class="empty">Nenhum produto encontrado com esses filtros.</div>';
 }
+const infoPages={
+  contato:{title:'Contato',html:'<h3>Fale com a CardVault</h3><p>Para este projeto, os canais de contato ainda são configuráveis. Antes de uma publicação real, substitua esta informação pelo e-mail e/ou WhatsApp de atendimento da loja.</p><div class="notice"><strong>Atendimento</strong><br>Canal de contato: a configurar</div>'},
+  comoComprar:{title:'Como comprar',html:'<h3>Do catálogo ao carrinho</h3><p>Escolha uma coleção ou produto selado, selecione os itens disponíveis e adicione-os ao carrinho. Depois, abra o carrinho e avance para o checkout.</p><p>Nesta versão do projeto, o checkout utiliza exclusivamente o PayPal em ambiente <em>Sandbox</em> (demonstração).</p>'},
+  faq:{title:'Dúvidas frequentes',html:'<h3>As cartas já estão à venda?</h3><p>Somente cartas com preço, estoque e disponibilidade cadastrados no painel administrativo podem ser adicionadas ao carrinho.</p><h3>E os produtos selados?</h3><p>Eles podem ser filtrados por coleção ou por tipo de produto, como Blister Triplo e Box Display.</p><h3>Os preços são os da Copag?</h3><p>Não necessariamente. O CardVault possui seu próprio inventário; as informações da Copag são usadas como referência de catálogo e identificação dos produtos.</p>'},
+  trocas:{title:'Trocas e devoluções',html:'<p>Esta página é parte do protótipo do CardVault e apresenta uma política demonstrativa. Antes de transformar o projeto em uma operação comercial real, as regras de troca, devolução, prazo e atendimento devem ser definidas e revisadas de acordo com a legislação aplicável.</p>'},
+  privacidade:{title:'Política de privacidade',html:'<p>O CardVault usa armazenamento local do navegador para manter o carrinho e sessão administrativa. O inventário é persistido no Supabase no servidor. O checkout desta versão usa o PayPal Sandbox para demonstração.</p><p>Antes de uma publicação real, esta página deve ser ajustada para refletir os dados efetivamente coletados, as finalidades e os responsáveis pelo tratamento.</p>'},
+  termos:{title:'Termos de uso',html:'<p>O CardVault é um projeto independente de catálogo e loja virtual. A disponibilidade, os preços e as condições exibidos no site são definidos pelo inventário interno do projeto.</p><p>Pokémon e demais marcas, nomes e personagens mencionados pertencem aos respectivos titulares. O CardVault não declara afiliação oficial com esses titulares.</p>'}
+};
+function openInfo(key){
+  if(key==='about'){showView('about');return;}
+  const p=infoPages[key];if(!p)return;
+  $('infoTitle').textContent=p.title;$('infoContent').innerHTML=p.html;$('infoModal').classList.add('show');$('overlay').classList.add('show');window.scrollTo({top:0,behavior:'smooth'});
+}
+
 function editSealed(id,name,price,stock,enabled){
   if(!adminMode)return;selectedSealedAdmin={id,name};$('sealedAdminCurrent').textContent=`Editando: ${name}`;$('sealedAdminPrice').value=price||'';$('sealedAdminStock').value=stock||0;$('sealedAdminEnabled').checked=Boolean(enabled);$('sealedAdminModal').classList.add('show');$('overlay').classList.add('show');
 }
@@ -146,7 +169,7 @@ function renderCart(){
   const t=totals();$('subtotal').textContent=brl(t.sub);$('shipping').textContent=t.ship===0&&t.sub>0?'Grátis':brl(t.ship);$('total').textContent=brl(t.total);saveCart();
 }
 function openCart(){$('cartDrawer').classList.add('open');$('overlay').classList.add('show')}
-function closeAll(){['checkout','adminModal','sealedAdminModal','adminLoginModal'].forEach(x=>$(x).classList.remove('show'));$('cartDrawer').classList.remove('open');$('overlay').classList.remove('show')}
+function closeAll(){['checkout','adminModal','sealedAdminModal','adminLoginModal','infoModal'].forEach(x=>$(x).classList.remove('show'));$('cartDrawer').classList.remove('open');$('overlay').classList.remove('show')}
 async function openCheckout(){
   if(!Object.keys(cart).length)return alert('Carrinho vazio.');
   $('cartDrawer').classList.remove('open');$('checkout').classList.add('show');$('overlay').classList.add('show');
@@ -203,7 +226,8 @@ $('sealedSearch').addEventListener('input',renderSealed);$('sealedCollection').a
 $('open30thBtn').onclick=()=>openSet('me6pt5');
 $('search').addEventListener('input',()=>mode==='sets'?renderSets():renderCards());$('sort').addEventListener('change',()=>mode==='sets'?renderSets():renderCards());$('availability').addEventListener('change',()=>mode==='cards'&&renderCards());
 $('backBtn').onclick=renderSets;$('cartBtn').onclick=openCart;$('closeCart').onclick=closeAll;$('overlay').onclick=closeAll;$('checkoutBtn').onclick=openCheckout;$('cancelCheckout').onclick=closeAll;
-$('adminEntry').onclick=openAdminLogin;$('closeAdminLogin').onclick=closeAll;$('adminLoginBtn').onclick=loginAdmin;$('adminPassword').addEventListener('keydown',e=>{if(e.key==='Enter')loginAdmin()});
+$('adminEntry').onclick=openAdminLogin;
+$('closeInfo').onclick=closeAll;$('closeAdminLogin').onclick=closeAll;$('adminLoginBtn').onclick=loginAdmin;$('adminPassword').addEventListener('keydown',e=>{if(e.key==='Enter')loginAdmin()});
 $('adminLogoutBtn').onclick=logoutAdmin;$('closeAdmin').onclick=closeAll;$('saveAdmin').onclick=saveAdmin;$('closeSealedAdmin').onclick=closeAll;$('saveSealedAdmin').onclick=saveSealedAdmin;
 
 renderCart();init();

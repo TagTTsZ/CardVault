@@ -28,3 +28,13 @@ header{position:sticky;top:0;z-index:30;background:rgba(13,16,32,.94);backdrop-f
 
 .statsGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:0 0 18px}.statCard{background:linear-gradient(180deg,var(--panel),#111629);border:1px solid var(--line);border-radius:18px;padding:20px}.statValue{display:block;font-size:1.65rem;font-weight:950;color:var(--accent);margin-bottom:7px}.statLabel{display:block;color:var(--muted);line-height:1.45;font-size:.9rem}.aboutFacts{margin-bottom:18px}.aboutFacts h2,.sourcesCard h2{margin-top:0}.aboutFacts p,.sourcesCard p{line-height:1.72;color:var(--muted)}.sourcesCard{margin-bottom:42px}.sourcesCard a{color:var(--txt);text-decoration:underline}.sourcesCard a:hover{color:var(--accent)}
 @media(max-width:850px){.statsGrid{grid-template-columns:repeat(2,1fr)}}@media(max-width:560px){.statsGrid{grid-template-columns:1fr}}
+
+/* CardVault navigation, catalog reference labels and institutional page */
+.navLink{text-decoration:none;display:inline-block}
+.catalogNote{margin:0 0 16px;padding:12px 14px;border:1px solid var(--line);background:rgba(21,26,48,.75);border-radius:12px;color:var(--muted);line-height:1.5}
+.sealedImage{position:relative}
+.imageTag{position:absolute;left:8px;bottom:8px;padding:4px 7px;border-radius:999px;background:rgba(13,16,32,.86);border:1px solid var(--line);font-size:.68rem;color:var(--muted);backdrop-filter:blur(6px)}
+.institutionalPage{padding-bottom:30px}.institutionalHero{padding:54px 0 28px}.institutionalHero h1{max-width:920px}.institutionalIntro{font-size:1.08rem;color:var(--muted);max-width:880px;line-height:1.75}
+.institutionalNav{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 28px}.institutionalNav a{border:1px solid var(--line);background:var(--panel2);color:var(--txt);border-radius:999px;padding:8px 11px;text-decoration:none;font-size:.88rem}.institutionalNav a:hover{background:#273052}
+.institutionalGrid{display:grid;grid-template-columns:1.3fr .7fr;gap:18px;margin-bottom:18px}.institutionalSection{background:linear-gradient(180deg,var(--panel),#111629);border:1px solid var(--line);border-radius:20px;padding:24px;margin-bottom:18px;scroll-margin-top:100px}.institutionalSection h2,.institutionalSection h3{margin-top:0}.institutionalSection p,.institutionalSection li{color:var(--muted);line-height:1.75}.institutionalSection a{color:var(--txt)}.contactBox{font-size:1.05rem;background:#111a30;border:1px solid var(--line);border-radius:14px;padding:16px}.contactBox a{color:var(--accent);font-weight:900}.institutionalFooter{margin-top:34px}
+@media(max-width:820px){.institutionalGrid{grid-template-columns:1fr}}
